@@ -17,8 +17,8 @@ spec:
         spec:
             containers:
                 - name: devops-ci-demo
-                  image: local/devops-ci-demo-img:latest
-                  imagePullPolicy: Never
+                  image: local/devops-ci-demo:latest
+                  imagePullPolicy: IfNotPresent
                   ports:
                       - containerPort: 8080
                   readinessProbe:
