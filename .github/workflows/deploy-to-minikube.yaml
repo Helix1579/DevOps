@@ -2,10 +2,10 @@ name:  CD -Deploy to Minikube using Github Actions
 on:
     push:
         branches:
-            - [ master ] #main branch
+            [ master ] #main branch
     pull_request:
         branches:
-            - [ master ] #main branch
+            [ master ] #main branch
 jobs:
     job1:
         name: Build and Deploy
