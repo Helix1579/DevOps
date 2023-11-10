@@ -28,7 +28,7 @@ jobs:
             -   name: Deploy to Minikube
                 run: |
                     kubectl apply -f deployment.yaml
-                    kubectl wait --for=condition=Ready pod -l app=devops-ci-demo
+                    kubectl wait --for=condition=Ready pod -l app=devops-ci-demo timeout=60s
                     kubectl get all
             -   name: Test service URLs
                 run: |
