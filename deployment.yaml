@@ -35,4 +35,4 @@ spec:
     ports:
         - name: http
           port: 8383
-          targetPort: 8383
+          targetPort: 8080
