@@ -1,44 +1,56 @@
-name:  CD -Deploy to Minikube using Github Actions
+name: CD-Deploy to Minikube using Github Actions
 on:
     push:
         branches:
-            [ master ] #main branch
+            - master
     pull_request:
         branches:
-            [ master ] #main branch
+            - master
+
 jobs:
     job1:
         name: Build and Deploy
         runs-on: ubuntu-latest
         steps:
-            -   uses: actions/checkout@v4
-            -   name: Start Minikube
-            -   id: minikube
-                uses: medyagh/setup-minikube@latest
-            -   name: try the cluster
-                run: |
-                    kubectl get pods -A
-            -   name: Build Image
-                run: |
-                    export SHELL=/bin/bash
-                    eval $(minikube -p minikube docker-env)
-                    docker build -f ./Dockerfile -t local/devops-ci-demo .
-                    echo -n "Verifying images : "
-                    docker images
-            -   name: Deploy to Minikube
-                run: |
-                    kubectl apply -f deployment.yaml
-                    kubectl wait --for=condition=Ready pod -l app=devops-ci-demo
-                    kubectl get all
-            -   name: Test service URLs
-                run: |
-                    echo "SERVICE URL: $(minikube service devops-ci-demo --url)"
-                    kubectl post-forward service/devops-ci-demo 8080:8080 &> /dev/null &
-                    sleep 5
-                    kubectl port-forward service/devops-ci-demo 8080:8080 &> /dev/null &
-            -   run: |
-                    curl -i http://localhost:8080
-            -   name: Cleanup
-                run: |
-                    eval $(minikube docker-env -u)
-                    minikube delete
+            - name: Checkout code
+              uses: actions/checkout@v4
+            
+            - name: Start Minikube
+              id: minikube
+              uses: medyagh/setup-minikube@latest
+              with:
+                  kubernetes-version: latest
+            
+            - name: Wait for Minikube to start
+              run: sleep 20
+            
+            - name: Try the cluster
+              run: kubectl get pods -A
+            
+            - name: Build Image
+              run: |
+                  export SHELL=/bin/bash
+                  eval $(minikube -p minikube docker-env)
+                  docker build -f ./Dockerfile -t local/devops-ci-demo .
+                  echo -n "Verifying images : "
+                  docker images
+            
+            - name: Deploy to Minikube
+              run: |
+                  kubectl apply -f deployment.yaml
+                  kubectl wait --for=condition=Ready pod -l app=devops-ci-demo
+                  kubectl get all
+            
+            - name: Test service URLs
+              run: |
+                  echo "SERVICE URL: $(minikube service devops-ci-demo --url)"
+                  kubectl port-forward service/devops-ci-demo 8080:8080 &> /dev/null &
+                  sleep 5
+                  kubectl port-forward service/devops-ci-demo 8080:8080 &> /dev/null &
+            
+            - run: curl -i http://localhost:8080
+            
+            - name: Cleanup
+              run: |
+                  eval $(minikube docker-env -u)
+                  minikube delete
